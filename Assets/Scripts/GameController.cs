@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class GameController : MonoBehaviour
 {
@@ -10,12 +11,13 @@ public class GameController : MonoBehaviour
     private bool continuePlaying = true;
     private Coroutine showCubePlaceCoroutine = null;
 
+    public GameObject[] mainMenuObjects;
     public GameObject restartButton;
     public Transform cubeToPlace;
     public GameObject cubeToCreate;
     public GameObject allCubes;
     public float nextCubePositionUpdateSpeed = 0.7f;
-    public bool continueShowNextCube = true;
+    public bool continueShowNextCube = true, isFirstCube = true;
 
     private List<Vector3> allCubesPositions = new List<Vector3>
     {
@@ -56,12 +58,25 @@ public class GameController : MonoBehaviour
 
     private void Update()
     {
-        if (this.continuePlaying && (Input.GetMouseButtonDown(0/*left button number*/) || Input.touchCount > 0))
+        if (this.continuePlaying && (Input.GetMouseButtonDown(0/*left button number*/) || Input.touchCount > 0 ))
         {
 #if !UNITY_EDITOR
+            //to process only first touch bit not continuos pressing
             if (Input.GetTouch(0).phase != TouchPhase.Began)
                 return;
 #endif
+            //if we press button on screne (e.g. 'google button') we don`t need to put new cube
+            if (EventSystem.current.IsPointerOverGameObject())
+                return;
+
+            //if we place first cube we need to hide main menu
+            if(this.isFirstCube)
+            {
+                this.isFirstCube = false;
+                foreach (var item in this.mainMenuObjects)
+                    Destroy(item);
+            }
+
             //creating new cube
             GameObject newCube =  Instantiate(this.cubeToCreate, cubeToPlace.position, Quaternion.identity) as GameObject;
             //make it part of allCubes rigidbody

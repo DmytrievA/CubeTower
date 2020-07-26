@@ -12,4 +12,9 @@ public class CanvasButtonsController : MonoBehaviour
         //reload currens scene
         SceneManager.LoadScene(sceneIndex);
     }
+
+    public void OpenGoogle()
+    {
+        Application.OpenURL("https://www.google.com");
+    }
 }
